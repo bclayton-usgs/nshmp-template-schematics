@@ -1,13 +1,37 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { getWorkspace } from '@schematics/angular/utility/config';
 
 import {
-  addPackageJsonDependency,
   NodeDependency,
   NodeDependencyType,
-  getWorkspace,
   getProjectFromWorkspace, 
-  addModuleImportToRootModule } from 'schematics-utilities';
+  addModuleImportToRootModule, 
+  addPackageToPackageJson} from 'schematics-utilities';
 
+const assets: Asset[] = [
+  {
+    glob: '**/*',
+    input: 'node_modules/@nshmp/nshmp-ng-template/assets',
+    output: './assets'
+  },
+  {
+    glob: '**/*',
+    input: 'node_modules/uswds/dist/img',
+    output: './assets/uswds'
+  },
+  {
+    glob: '**/*',
+    input: 'node_modules/uswds/dist/fonts',
+    output: '~uswds/dist/fonts'
+  }
+];
+
+const stylesPath = 'node_modules/@nshmp/nshmp-ng-template/scss/styles.scss'; 
+
+/**
+ * Update dependencies in package,json, update styles and assets
+ * in angular.json, and update app module with nshmp module import.   
+ */
 export function ngAdd(options: any): Rule {
   return (tree: Tree, _context: SchematicContext) => {
     setupProject(tree, options);
@@ -18,6 +42,9 @@ export function ngAdd(options: any): Rule {
   };
 }
 
+/**
+ * Add needed dependencies to run nshmp-ng-template
+ */
 function addDependencies(host: Tree): Tree {
   const dependencies: NodeDependency[] = [
     {
@@ -47,11 +74,20 @@ function addDependencies(host: Tree): Tree {
     }
   ];
 
-  dependencies.forEach(dependency => addPackageJsonDependency(host, dependency));
+  dependencies.forEach(dependency => {
+    addPackageToPackageJson(
+        host,
+        dependency.type,
+        dependency.name,
+        dependency.version);
+  });
 
   return host;
 }
 
+/**
+ * Add the nshmp template module to app.module.ts 
+ */
 function setupProject(host: Tree, _options: any) : Tree {
   const workspace = getWorkspace(host);
   const project = getProjectFromWorkspace(workspace, _options.project);
@@ -65,6 +101,10 @@ function setupProject(host: Tree, _options: any) : Tree {
   return host;
 }
 
+/**
+ * Update the angular.json file with the paths needed for styles
+ * and assets. 
+ */
 function updateAngularJsonOptions(host: Tree, _options: any): Tree {
   const workspace = getWorkspace(host);
   const projectName = <string>workspace.defaultProject || '';
@@ -73,18 +113,19 @@ function updateAngularJsonOptions(host: Tree, _options: any): Tree {
     const sourceText = host.read('angular.json')!.toString('utf-8');
     const json = JSON.parse(sourceText);
 
-    if (json.projects &&
-          json.projects[projectName] &&
-          json.projects[projectName].architect &&
-          json.projects[projectName].architect.build &&
-          json.projects[projectName].architect.build.options &&
-          json.projects[projectName].architect.build.options) {
-
+    if (!(json.projects[projectName].architect.build.options === null)) {
       let options = json.projects[projectName].architect.build.options;
 
-      if (options.styles) {
-        json.projects[projectName].architect.build.options.styles
-            .unshift('node_modules/@nshmp/nshmp-ng-template/scss/styles.scss');
+      if (options.styles && !options.styles.includes(stylesPath)) {
+        options.styles.unshift(stylesPath);
+      }
+
+      if (options.assets) {
+        assets.forEach(asset => {
+          if (!checkAsset(options.assets, asset)) {
+            options.assets.push(asset);
+          }
+        });
       }
 
       host.overwrite('angular.json', JSON.stringify(json, null, 2));
@@ -93,4 +134,26 @@ function updateAngularJsonOptions(host: Tree, _options: any): Tree {
   }
 
   return host;
+}
+
+/**
+ * Check whether and assest object as been added. 
+ */
+function checkAsset(assets: Array<any>, assetCheck: any) {
+
+  return assets.some((asset) => {
+    if (typeof asset === 'object') {
+      return Object.keys(asset).every((key) => {
+        return asset[key] === assetCheck[key];
+      })
+    } else {
+      return false;
+    }
+  });
+}
+
+interface Asset {
+  glob: string;
+  input: string;
+  output: string;
 }
