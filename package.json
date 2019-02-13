@@ -1,0 +1,25 @@
+{
+  "name": "@nshmp/nshmp-template-schematics",
+  "version": "0.0.14",
+  "description": "Schematics for nshmp-ng-template",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && jasmine src/**/*_spec.js"
+  },
+  "keywords": [
+    "schematics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "schematics": "./src/collection.json",
+  "dependencies": {
+    "@angular-devkit/core": "^7.3.1",
+    "@angular-devkit/schematics": "^7.3.1",
+    "@types/jasmine": "^3.0.0",
+    "@types/node": "^8.0.31",
+    "jasmine": "^3.0.0",
+    "schematics-utilities": "^1.1.1",
+    "typescript": "~3.2.2"
+  },
+  "devDependencies": {}
+}

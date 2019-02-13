@@ -1,0 +1,13 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "nshmp-template-schematics": {
+      "description": "A blank schematic.",
+      "factory": "./nshmp-template-schematics/index#nshmpTemplateSchematics"
+    },
+    "ng-add": {
+      "description": "Adds nshmp-ng-template to application",
+      "factory": "./ng-add/index#ngAdd"
+    }
+  }
+}
