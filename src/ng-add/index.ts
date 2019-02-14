@@ -2,7 +2,9 @@ import {
     Rule,
     SchematicContext,
     Tree,
-    noop } from '@angular-devkit/schematics';
+    noop, 
+    chain,
+    externalSchematic} from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from '@schematics/angular/utility/config';
 import {
@@ -39,16 +41,19 @@ const stylesPath = 'node_modules/@nshmp/nshmp-ng-template/scss/styles.scss';
  * in angular.json, and update app module with nshmp module import.   
  */
 export function ngAdd(options: Schema): Rule {
-  return (tree: Tree, _context: SchematicContext) => {
-    setupProject(tree, options);
-    addDependencies(tree);
-    
-    options.angularUpdate ? updateAngularJsonOptions(tree, options) : noop();
+  return chain([
+    createComponent(options),
+    (tree: Tree, _context: SchematicContext) => {
+      setupProject(tree, options);
+      addDependencies(tree);
+      
+      options.angularUpdate ? updateAngularJsonOptions(tree, options) : noop();
 
-    _context.addTask(new NodePackageInstallTask());
+      _context.addTask(new NodePackageInstallTask());
 
-    return tree;
-  }
+      return tree;
+    }
+  ])
 }
 
 /**
@@ -92,6 +97,32 @@ function addDependencies(host: Tree) {
   });
 
   return host;
+}
+
+/**
+ * Check whether and assest object as been added. 
+ */
+function checkAsset(assets: Array<any>, assetCheck: any) {
+
+  return assets.some((asset) => {
+    if (typeof asset === 'object') {
+      return Object.keys(asset).every((key) => {
+        return asset[key] === assetCheck[key];
+      })
+    } else {
+      return false;
+    }
+  });
+}
+
+/**
+ * Invoke the ng-generate component schematic.
+ */
+function createComponent(options: Schema) {
+
+  return options.addComponent ?
+      externalSchematic('@nshmp/nshmp-template-schematics', 'component', options) :
+      noop();
 }
 
 /**
@@ -142,22 +173,6 @@ function updateAngularJsonOptions(host: Tree, options: any): Tree {
   }
 
   return host;
-}
-
-/**
- * Check whether and assest object as been added. 
- */
-function checkAsset(assets: Array<any>, assetCheck: any) {
-
-  return assets.some((asset) => {
-    if (typeof asset === 'object') {
-      return Object.keys(asset).every((key) => {
-        return asset[key] === assetCheck[key];
-      })
-    } else {
-      return false;
-    }
-  });
 }
 
 interface Asset {
