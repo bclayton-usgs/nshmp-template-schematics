@@ -1,12 +1,18 @@
-import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import {
+    Rule,
+    SchematicContext,
+    Tree,
+    noop } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from '@schematics/angular/utility/config';
-
 import {
   NodeDependency,
   NodeDependencyType,
   getProjectFromWorkspace, 
   addModuleImportToRootModule, 
   addPackageToPackageJson} from 'schematics-utilities';
+
+import { Schema } from './schema';
 
 const assets: Asset[] = [
   {
@@ -32,20 +38,23 @@ const stylesPath = 'node_modules/@nshmp/nshmp-ng-template/scss/styles.scss';
  * Update dependencies in package,json, update styles and assets
  * in angular.json, and update app module with nshmp module import.   
  */
-export function ngAdd(options: any): Rule {
+export function ngAdd(options: Schema): Rule {
   return (tree: Tree, _context: SchematicContext) => {
     setupProject(tree, options);
     addDependencies(tree);
-    updateAngularJsonOptions(tree, options);
+    
+    options.angularUpdate ? updateAngularJsonOptions(tree, options) : noop();
+
+    _context.addTask(new NodePackageInstallTask());
 
     return tree;
-  };
+  }
 }
 
 /**
  * Add needed dependencies to run nshmp-ng-template
  */
-function addDependencies(host: Tree): Tree {
+function addDependencies(host: Tree) {
   const dependencies: NodeDependency[] = [
     {
       type: NodeDependencyType.Default,
@@ -105,13 +114,12 @@ function setupProject(host: Tree, _options: any) : Tree {
  * Update the angular.json file with the paths needed for styles
  * and assets. 
  */
-function updateAngularJsonOptions(host: Tree, _options: any): Tree {
-  const workspace = getWorkspace(host);
-  const projectName = <string>workspace.defaultProject || '';
+function updateAngularJsonOptions(host: Tree, options: any): Tree {
 
   if (host.exists('angular.json')) {
     const sourceText = host.read('angular.json')!.toString('utf-8');
     const json = JSON.parse(sourceText);
+    const projectName = Object.keys(json['projects'])[0] || options.project; 
 
     if (!(json.projects[projectName].architect.build.options === null)) {
       let options = json.projects[projectName].architect.build.options;
