@@ -13,7 +13,8 @@
     "ng-generate": {
       "description": "Create a component with snhmp-ng-template",
       "factory": "./ng-generate/index#ngGenerate",
-      "schema": "./ng-generate/schema.json"
+      "schema": "./ng-generate/schema.json",
+      "aliases": ["component", "c"]
     }
   }
 }
