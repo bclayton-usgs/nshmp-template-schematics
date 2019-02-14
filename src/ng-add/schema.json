@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "id": "SchematicsNshmpTemplateNgAdd",
+  "title": "nshmp template ng-add options schema",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "The name of the project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "angularUpdate": {
+      "type": "boolean",
+      "description": "Whether to update the angular.json file.",
+      "default": true
+    }
+  }
+}
