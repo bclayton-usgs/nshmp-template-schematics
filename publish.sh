@@ -9,6 +9,9 @@ npm version patch
 # Publish to npm
 npm publish --access public
 
+# Git push tags
+git push --tags
+
 # Clean up build files
 rm src/**/*.js
 rm src/**/*.js.map
