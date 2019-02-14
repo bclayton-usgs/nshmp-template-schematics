@@ -1,3 +1,4 @@
-# Ignores TypeScript files, but keeps definitions.
+# Ignores TypeScript files, but keeps definitions and templating.
 *.ts
 !*.d.ts
+!src/**/files/**/*.ts
