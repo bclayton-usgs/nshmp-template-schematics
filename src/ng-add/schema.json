@@ -15,6 +15,12 @@
       "type": "boolean",
       "description": "Whether to update the angular.json file.",
       "default": true
+    },
+    "addComponent": {
+      "type": "boolean",
+      "description": "Whether to invoke the ng-generate component schematic",
+      "default": false,
+      "x-prompt": "Create a nshmp-template component?"
     }
   }
 }

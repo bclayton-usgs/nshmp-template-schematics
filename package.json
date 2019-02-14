@@ -1,6 +1,6 @@
 {
   "name": "@nshmp/nshmp-template-schematics",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "description": "Schematics for nshmp-ng-template",
   "scripts": {
     "build": "tsc -p tsconfig.json",
