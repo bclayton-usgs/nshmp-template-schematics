@@ -7,7 +7,13 @@
     },
     "ng-add": {
       "description": "Adds nshmp-ng-template to application",
-      "factory": "./ng-add/index#ngAdd"
+      "factory": "./ng-add/index#ngAdd",
+      "schema": "./ng-add/schema.json"
+    },
+    "ng-generate": {
+      "description": "Create a component with snhmp-ng-template",
+      "factory": "./ng-generate/index#ngGenerate",
+      "schema": "./ng-generate/schema.json"
     }
   }
 }
