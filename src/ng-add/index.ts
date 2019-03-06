@@ -16,6 +16,9 @@ import {
 
 import { Schema } from './schema';
 
+/**
+ * Assets to add to the angular.json file.
+ */
 const assets: Asset[] = [
   {
     glob: '**/*',
@@ -25,7 +28,7 @@ const assets: Asset[] = [
   {
     glob: '**/*',
     input: 'node_modules/uswds/dist/img',
-    output: './assets/uswds'
+    output: '~uswds/dist/img'
   },
   {
     glob: '**/*',
